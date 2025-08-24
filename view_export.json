@@ -1,0 +1,30 @@
+{
+    "template": {
+        "width": 297.0,
+        "height": 210.0,
+        "is_default": false,
+        "template_path": "/snap/freecad/1634/usr/share/Mod/TechDraw/Templates/A4_Landscape_blank.svg"
+    },
+    "projection_type": "First Angle",
+    "auto_distribute": true,
+    "spacing": {
+        "x": 45.0,
+        "y": 45.0
+    },
+    "views": [
+        {
+            "name": "Front",
+            "type": "standard",
+            "x_mm": 0.0,
+            "y_mm": 0.0
+        },
+        {
+            "name": "",
+            "type": "custom"
+        },
+        {
+            "name": "",
+            "type": "custom"
+        }
+    ]
+}

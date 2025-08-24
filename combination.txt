@@ -1,0 +1,31 @@
+Available file or basic path
+front_right
+front_top
+rest_front
+rest_right
+rest_top_front
+
+The Button I expect
+top,front,right,reset
+
+Action you should carry out the path below...
+
+Play: look at a new folder called Play
+
+front to right:  front_right
+right to front: reverse front_right
+top to right : top_right
+right to top : rewind top_right
+Reset to front :rest_front
+front to Reset: rewind the reset_front
+Reset to top: Rest_Top
+top to reset : rewind Reset_top
+Reset to right: Reset_right
+Right to reset : rewind Reset_right
+Front to top: reverse top_front
+Top to front: top_front
+front to right : rewind reset_top_front+ rest_right
+right to front : rewind front to right
+top to right: rewind Rest_top + rest_right
+right to top: rewind top to right
+

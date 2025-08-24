@@ -1,0 +1,15 @@
+# Manual Dimensions Configuration
+# Edit these values to match your actual conversion results
+
+# PNG dimensions (pixels) - from your Result.png
+PNG_WIDTH=1488
+PNG_HEIGHT=1052
+
+# Actual SVG dimensions (mm) - from exported2.svg
+TEMPLATE_WIDTH=420
+TEMPLATE_HEIGHT=297
+
+# Notes:
+# - PNG_WIDTH and PNG_HEIGHT should match your actual conversion results
+# - TEMPLATE_WIDTH and TEMPLATE_HEIGHT are from the actual SVG file (420 x 297)
+# - All scripts will read from this file for consistency 

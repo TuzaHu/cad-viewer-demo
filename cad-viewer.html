@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAD Modell Viser</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #header h1 {
+            color: #667eea;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        #navigation {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .settings-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .settings-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .settings-btn.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        
+        #controls {
+            display: none;
+        }
+        
+        #controls.show {
+            display: block;
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 100;
+            background: transparent; /* FULLY TRANSPARENT */
+            backdrop-filter: none; /* REMOVED */
+            padding: 15px;
+            border-radius: 0;
+            border: none;
+            color: white;
+            max-width: 320px;
+            height: auto;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 6px;
+        }
+        
+        .gizmo-btn {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gizmo-btn.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+        }
+        
+        .collapsible-section {
+            border: none; /* REMOVED BORDER */
+            border-radius: 0;
+            margin-bottom: 15px;
+            overflow: visible;
+            background: transparent; /* FULLY TRANSPARENT */
+        }
+        
+        .collapsible-header {
+            background: transparent; /* TRANSPARENT */
+            padding: 12px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #667eea;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3); /* SUBTLE BORDER */
+            transition: all 0.3s ease;
+        }
+        
+        .collapsible-header:hover {
+            color: #ff6b6b;
+            border-bottom-color: rgba(255, 107, 107, 0.5);
+        }
+        
+        .collapsible-header::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-header.collapsed::after {
+            transform: rotate(-90deg);
+        }
+        
+        .collapsible-content {
+            padding: 15px 0; /* REDUCED PADDING */
+            background: transparent; /* TRANSPARENT */
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.collapsed {
+            max-height: 0;
+            padding: 0;
+        }
+        
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+        
+        /* Compact Grid Layout for Standard Views */
+        .standard-views-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+            max-width: 240px;
+        }
+        
+        .view-grid-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+        }
+        
+        .view-grid-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.5);
+        }
+        
+        .view-grid-btn:active {
+            transform: translateY(0);
+        }
+        
+        .view-grid-btn.reset {
+            grid-column: span 3;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            margin-top: 8px;
+        }
+        
+        /* Visual grouping - LIGHT AND TRANSPARENT */
+        .views-group {
+            background: rgba(255, 255, 255, 0.03); /* VERY SUBTLE */
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #status {
+            display: none;
+        }
+        
+        #status.show {
+            display: block;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        #loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Coordinate System Helper */
+        .axis-helper {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 90;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: white;
+        }
+        
+        .axis-label {
+            margin: 2px 0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .axis-x { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); }
+        .axis-y { color: #4ecdc4; background: rgba(78, 205, 196, 0.1); }
+        .axis-z { color: #667eea; background: rgba(102, 126, 234, 0.1); }
+
+        /* ===== MOBILE RESPONSIVE ENHANCEMENTS ===== */
+        @media (max-width: 768px) {
+            #controls.show {
+                top: 70px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+                max-height: 70vh;
+                overflow-y: auto;
+                padding: 10px;
+            }
+            
+            #header {
+                padding: 10px 20px;
+            }
+            
+            #header h1 {
+                font-size: 20px;
+            }
+            
+            #navigation {
+                top: 15px;
+                right: 20px;
+            }
+            
+            .nav-btn, .settings-btn {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+            
+            .standard-views-grid {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: none;
+                gap: 6px;
+            }
+            
+            .view-grid-btn.reset {
+                grid-column: span 2;
+            }
+            
+            .view-grid-btn {
+                padding: 10px 6px;
+                font-size: 11px;
+                min-height: 35px;
+            }
+            
+            .views-group {
+                padding: 10px;
+                margin: 8px 0;
+            }
+            
+            #status.show {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                font-size: 11px;
+                padding: 10px 12px;
+            }
+            
+            .gizmo-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+                min-width: 70px;
+                margin: 3px;
+            }
+            
+            .button-row {
+                gap: 6px;
+                margin: 8px 0;
+            }
+            
+            .control-group {
+                margin-bottom: 12px;
+            }
+            
+            .control-group label {
+                font-size: 11px;
+            }
+            
+            .axis-helper {
+                bottom: 10px;
+                left: 10px;
+                font-size: 10px;
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #controls.show {
+                top: 60px;
+                left: 5px;
+                right: 5px;
+                padding: 8px;
+            }
+            
+            #header {
+                padding: 8px 15px;
+            }
+            
+            #header h1 {
+                font-size: 18px;
+            }
+            
+            #navigation {
+                top: 12px;
+                right: 15px;
+            }
+            
+            .nav-btn, .settings-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+                margin-left: 5px;
+            }
+            
+            .standard-views-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+            
+            .view-grid-btn {
+                padding: 8px 4px;
+                font-size: 10px;
+                min-height: 32px;
+                border-radius: 8px;
+            }
+            
+            .views-group {
+                padding: 8px;
+                margin: 6px 0;
+            }
+            
+            .gizmo-btn {
+                padding: 6px 10px;
+                font-size: 10px;
+                min-width: 60px;
+                margin: 2px;
+            }
+            
+            .collapsible-header {
+                font-size: 12px;
+                padding: 10px 0;
+            }
+            
+            .collapsible-content {
+                padding: 12px 0;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .standard-views-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .view-grid-btn.reset {
+                grid-column: span 1;
+            }
+            
+            .button-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .gizmo-btn {
+                width: 100%;
+                max-width: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        
+        <div id="header">
+            <h1>CAD Modell Viser</h1>
+        </div>
+        
+        <div id="navigation">
+            <button id="settingsBtn" class="settings-btn">⚙️ Innstillinger</button>
+            <a href="index.html" class="nav-btn">← Animasjon Spiller</a>
+        </div>
+        
+        <div id="controls">
+            <div class="control-group">
+                                    <label>Modell Skala</label>
+                <input type="range" id="modelScale" min="0.1" max="5" value="1" step="0.1">
+                <span id="scaleValue">1.0</span>
+            </div>
+            
+            <div class="collapsible-section">
+                <div class="collapsible-header">Gizmo Kontroller</div>
+                <div class="collapsible-content">
+                    <div class="button-row">
+                                        <button id="translateMode" class="gizmo-btn">Flytt</button>
+                <button id="rotateMode" class="gizmo-btn active">Roter</button>
+                <button id="scaleMode" class="gizmo-btn">Skaler</button>
+                    </div>
+                    <div class="control-group">
+                        <label>Gizmo Størrelse</label>
+                        <input type="range" id="gizmoSize" min="0.5" max="2" value="1" step="0.1">
+                        <span id="gizmoSizeValue">1.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Gizmo Gjennomsiktighet</label>
+                        <input type="range" id="gizmoOpacity" min="0.3" max="1" value="0.8" step="0.1">
+                        <span id="gizmoOpacityValue">0.8</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="collapsible-section">
+                <div class="collapsible-header">Koordinatsystem</div>
+                <div class="collapsible-content">
+                    <div class="button-row">
+                                        <button id="worldSpace" class="gizmo-btn active">Verdensrom</button>
+                <button id="localSpace" class="gizmo-btn">Lokalt Rom</button>
+                    </div>
+                    <div class="button-row">
+                                        <button id="snapToGrid" class="gizmo-btn">Fest til Rutenett</button>
+                <button id="resetTransform" class="gizmo-btn">Tilbakestill</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="collapsible-section">
+                <div class="collapsible-header">Standard Visninger</div>
+                <div class="collapsible-content">
+                    <div class="views-group">
+                        <div class="standard-views-grid">
+                            <button class="view-grid-btn" data-view="front">Front</button>
+                            <button class="view-grid-btn" data-view="top">Topp</button>
+                            <button class="view-grid-btn" data-view="right">Høyre</button>
+                            <button class="view-grid-btn" data-view="back">Bak</button>
+                            <button class="view-grid-btn" data-view="bottom">Bunn</button>
+                            <button class="view-grid-btn" data-view="left">Venstre</button>
+                            <button class="view-grid-btn reset" data-view="reset">Tilbakestill Visning</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="collapsible-section">
+                <div class="collapsible-header">Animasjon Kontroller</div>
+                <div class="collapsible-content">
+                    <div class="views-group">
+                        <div class="button-row">
+                            <button id="goToTop" class="gizmo-btn">Topp</button>
+                            <button id="goToFront" class="gizmo-btn">Front</button>
+                            <button id="goToRight" class="gizmo-btn">Høyre</button>
+                            <button id="goToReset" class="gizmo-btn">Hvile</button>
+                        </div>
+                        <div class="button-row">
+                            <button id="playSequence" class="gizmo-btn" style="background: linear-gradient(135deg, #00c853 0%, #64dd17 100%);">Spill</button>
+                        </div>
+                        <div id="animationStatus" style="color: #667eea; font-size: 12px; text-align: center; margin-top: 10px; padding: 8px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border: 1px solid rgba(102, 126, 234, 0.3);">
+                            Animasjon Klar
+                        </div>
+                        <div id="animationProgress" style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; margin-top: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div id="animationProgressBar" style="height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 10px; width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+                        <div id="status">CAD Viser Klar - Gizmo Kontroller Aktive</div>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+                            Laster 3D modell...
+        </div>
+        
+        <div class="axis-helper">
+            <div class="axis-label axis-x">X: Red - Right</div>
+            <div class="axis-label axis-y">Y: Green - Up</div>
+            <div class="axis-label axis-z">Z: Blue - Forward</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+
+    <script>
+        console.log('=== CAD Viewer Script Loading ===');
+        console.log('Version: 1.0.1 - Animation Fixed');
+        
+        class CADViewer {
+            constructor() {
+                console.log('=== CADViewer Constructor ===');
+                
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.orbitControls = null;
+                this.transformControls = null;
+                this.model = null;
+                this.gizmoMode = 'rotate';
+                this.spaceMode = 'world';
+                
+                // Animation properties
+                this.backgroundTexture = null;
+                this.animationTexture = null;
+                this.backgroundMesh = null;
+                this.animationMesh = null;
+                this.currentState = 'reset';
+                this.currentSequence = null;
+                this.currentFrame = 0;
+                this.totalFrames = 0;
+                this.isPlaying = false;
+                this.isReversed = false;
+                this.frameRate = 12; // FPS
+                this.lastFrameTime = 0;
+                
+                // Available animation sequences
+                this.sequences = {
+                    'restTop': {
+                        path: 'Renders/Rest_Top/',
+                        frames: 72,
+                        suffix: '.png'
+                    },
+                    'restRight': {
+                        path: 'Renders/Rest_Right/',
+                        frames: 72,
+                        suffix: '.png'
+                    },
+                    'restFront': {
+                        path: 'Renders/Rest_front/',
+                        frames: 73,
+                        suffix: '.png'
+                    },
+                    'topFront': {
+                        path: 'Renders/top_front/',
+                        frames: 73,
+                        startFrame: 1,
+                        padded: false,
+                        suffix: '.png'
+                    },
+                    'topFrontReverse': {
+                        path: 'Renders/top_front_reverse/',
+                        frames: 73,
+                        suffix: '.png'
+                    },
+                    'restTopFront': {
+                        path: 'Renders/Rest_top_front/',
+                        frames: 144,
+                        suffix: '.png'
+                    },
+                    'frontRight': {
+                        path: 'Renders/front_right/',
+                        frames: 73,
+                        startFrame: 1,
+                        padded: false,
+                        suffix: '.png'
+                    },
+                    'topRight': {
+                        path: 'Renders/top_right/',
+                        frames: 72,
+                        startFrame: 1,
+                        padded: false,
+                        suffix: '.png'
+                    },
+                    'play': {
+                        path: 'Renders/Play/',
+                        frames: 232,
+                        startFrame: 1,
+                        padded: true,
+                        suffix: '.png'
+                    }
+                };
+                
+                console.log('Sequences configured:', this.sequences);
+                console.log('Play sequence path:', this.sequences.play.path);
+                console.log('Play sequence frames:', this.sequences.play.frames);
+                console.log('Play sequence startFrame:', this.sequences.play.startFrame);
+                console.log('Play sequence padded:', this.sequences.play.padded);
+                
+                // Test frame path calculation
+                const testSequence = this.sequences.play;
+                const testStartFrame = testSequence.startFrame || 1;
+                const testFirstFrameNum = testSequence.padded ? 
+                    testStartFrame.toString().padStart(4, '0') : 
+                    testStartFrame.toString();
+                const testFirstFramePath = `${testSequence.path}${testFirstFrameNum}${testSequence.suffix}`;
+                console.log('Test first frame path:', testFirstFramePath);
+                console.log('Expected: Renders/Play/0001.png');
+                
+                this.init();
+                this.setupEventListeners();
+                this.animate();
+                
+                this.loadDefaultModel();
+            }
+            
+            init() {
+                // Scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x1a1a1a);
+                
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(10, 10, 10);
+                this.camera.lookAt(0, 0, 0);
+                
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ 
+                    canvas: document.getElementById('canvas'),
+                    antialias: true,
+                    alpha: true
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+                this.scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(10, 10, 5);
+                directionalLight.castShadow = true;
+                this.scene.add(directionalLight);
+                
+                // Orbit Controls
+                this.orbitControls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.orbitControls.enableDamping = true;
+                this.orbitControls.dampingFactor = 0.05;
+                this.orbitControls.screenSpacePanning = true;
+                this.orbitControls.target.set(0, 0, 0);
+                
+                // Transform Controls
+                this.transformControls = new THREE.TransformControls(this.camera, this.renderer.domElement);
+                this.transformControls.setMode('rotate');
+                this.transformControls.setSize(0.8);
+                this.scene.add(this.transformControls);
+                
+                this.transformControls.addEventListener('dragging-changed', (event) => {
+                    this.orbitControls.enabled = !event.value;
+                });
+                
+                // Add helpers
+                const axesHelper = new THREE.AxesHelper(3);
+                this.scene.add(axesHelper);
+                
+                const gridHelper = new THREE.GridHelper(20, 20, 0x888888, 0x444444);
+                gridHelper.position.y = -0.01;
+                this.scene.add(gridHelper);
+                
+                // Setup animation background and mesh
+                const geometry = new THREE.PlaneGeometry(2, 2);
+                const material = new THREE.MeshBasicMaterial({ 
+                    transparent: true, 
+                    opacity: 0.9,
+                    side: THREE.DoubleSide
+                });
+                
+                this.backgroundMesh = new THREE.Mesh(geometry, material);
+                this.backgroundMesh.position.z = -0.1;
+                this.backgroundMesh.visible = false;
+                this.scene.add(this.backgroundMesh);
+                
+                this.animationMesh = new THREE.Mesh(geometry, material);
+                this.animationMesh.position.z = -0.05;
+                this.animationMesh.visible = false;
+                this.scene.add(this.animationMesh);
+                
+                this.updateStatus('CAD Viser med Gizmo Kontroller Initialisert');
+            }
+            
+            async loadDefaultModel() {
+                try {
+                    this.showLoading(true);
+                    const objLoader = new THREE.OBJLoader();
+                    const model = await new Promise((resolve, reject) => {
+                        objLoader.load('models/pipe_Demo.obj', resolve, undefined, reject);
+                    });
+                    this.setModel(model);
+                    this.updateStatus('Modell lastet - Bruk gizmo for å transformere');
+                } catch (error) {
+                    this.createPlaceholderModel();
+                    this.updateStatus('Bruker plassholder - Last din egen modell');
+                }
+                this.showLoading(false);
+            }
+            
+            createPlaceholderModel() {
+                const geometry = new THREE.CylinderGeometry(1, 1, 4, 32);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: 0x667eea,
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const cylinder = new THREE.Mesh(geometry, material);
+                cylinder.rotation.x = Math.PI / 2;
+                this.setModel(cylinder);
+            }
+            
+            setModel(model) {
+                if (this.model) {
+                    this.scene.remove(this.model);
+                    this.transformControls.detach();
+                }
+                this.model = model;
+                this.scene.add(this.model);
+                this.transformControls.attach(this.model);
+                this.centerAndScaleModel();
+            }
+            
+            setupEventListeners() {
+                // Model scale
+                document.getElementById('modelScale').addEventListener('input', (e) => {
+                    const scale = parseFloat(e.target.value);
+                    if (this.model) this.model.scale.setScalar(scale);
+                    document.getElementById('scaleValue').textContent = scale.toFixed(1);
+                });
+                
+                // Gizmo modes
+                document.getElementById('translateMode').addEventListener('click', () => this.setGizmoMode('translate'));
+                document.getElementById('rotateMode').addEventListener('click', () => this.setGizmoMode('rotate'));
+                document.getElementById('scaleMode').addEventListener('click', () => this.setGizmoMode('scale'));
+                
+                // Gizmo settings
+                document.getElementById('gizmoSize').addEventListener('input', (e) => {
+                    this.transformControls.setSize(parseFloat(e.target.value));
+                    document.getElementById('gizmoSizeValue').textContent = parseFloat(e.target.value).toFixed(1);
+                });
+                
+                document.getElementById('gizmoOpacity').addEventListener('input', (e) => {
+                    this.transformControls.setOpacity(parseFloat(e.target.value));
+                    document.getElementById('gizmoOpacityValue').textContent = parseFloat(e.target.value).toFixed(1);
+                });
+                
+                // Coordinate system
+                document.getElementById('worldSpace').addEventListener('click', () => {
+                    this.transformControls.setSpace('world');
+                    document.getElementById('worldSpace').classList.add('active');
+                    document.getElementById('localSpace').classList.remove('active');
+                });
+                
+                document.getElementById('localSpace').addEventListener('click', () => {
+                    this.transformControls.setSpace('local');
+                    document.getElementById('localSpace').classList.add('active');
+                    document.getElementById('worldSpace').classList.remove('active');
+                });
+                
+                // Standard view buttons
+                document.querySelectorAll('.view-grid-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const view = e.target.getAttribute('data-view');
+                        if (view === 'reset') {
+                            this.resetView();
+                        } else {
+                            this.setCameraView(view);
+                        }
+                    });
+                });
+                
+                // Collapsible sections
+                this.setupCollapsibleSections();
+                
+                // Settings button
+                this.setupSettingsButton();
+                
+                // Animation controls
+                this.setupAnimationControls();
+                
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+            
+            setupCollapsibleSections() {
+                const headers = document.querySelectorAll('.collapsible-header');
+                headers.forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        const isCollapsed = content.classList.contains('collapsed');
+                        content.classList.toggle('collapsed', !isCollapsed);
+                        header.classList.toggle('collapsed', !isCollapsed);
+                    });
+                });
+            }
+            
+            setGizmoMode(mode) {
+                this.gizmoMode = mode;
+                this.transformControls.setMode(mode);
+                document.querySelectorAll('.gizmo-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`${mode}Mode`).classList.add('active');
+            }
+            
+            setCameraView(view) {
+                const distance = 15;
+                const positions = {
+                    front: [0, 0, distance],
+                    back: [0, 0, -distance],
+                    top: [0, distance, 0],
+                    bottom: [0, -distance, 0],
+                    right: [distance, 0, 0],
+                    left: [-distance, 0, 0]
+                };
+                
+                if (positions[view]) {
+                    this.camera.position.set(...positions[view]);
+                    this.camera.lookAt(0, 0, 0);
+                    this.orbitControls.target.set(0, 0, 0);
+                    this.orbitControls.update();
+                                            this.updateStatus(`${view.charAt(0).toUpperCase() + view.slice(1)} visning`);
+                }
+            }
+            
+            resetView() {
+                this.camera.position.set(10, 10, 10);
+                this.orbitControls.target.set(0, 0, 0);
+                this.orbitControls.update();
+                if (this.model) {
+                    this.model.position.set(0, 0, 0);
+                    this.model.rotation.set(0, 0, 0);
+                    this.model.scale.set(1, 1, 1);
+                }
+                this.updateStatus('Visning tilbakestilt');
+            }
+            
+            setupSettingsButton() {
+                const settingsBtn = document.getElementById("settingsBtn");
+                const controlsPanel = document.getElementById("controls");
+                const statusPanel = document.getElementById("status");
+                
+                settingsBtn.addEventListener("click", () => {
+                    const isActive = settingsBtn.classList.contains("active");
+                    settingsBtn.classList.toggle("active", !isActive);
+                    settingsBtn.textContent = isActive ? "⚙️ Innstillinger" : "✕ Lukk";
+                    controlsPanel.classList.toggle("show", !isActive);
+                    statusPanel.classList.toggle("show", !isActive);
+                });
+            }
+            
+            setupAnimationControls() {
+                console.log('Setting up animation controls...');
+                
+                const goToTopBtn = document.getElementById('goToTop');
+                const goToFrontBtn = document.getElementById('goToFront');
+                const goToRightBtn = document.getElementById('goToRight');
+                const goToResetBtn = document.getElementById('goToReset');
+                const playSequenceBtn = document.getElementById('playSequence');
+                
+                console.log('Found buttons:', { goToTopBtn, goToFrontBtn, goToRightBtn, goToResetBtn, playSequenceBtn });
+                
+                if (goToTopBtn) {
+                    goToTopBtn.addEventListener('click', () => {
+                        console.log('goToTop clicked');
+                        this.goToState('top');
+                    });
+                }
+                
+                if (goToFrontBtn) {
+                    goToFrontBtn.addEventListener('click', () => {
+                        console.log('goToFront clicked');
+                        this.goToState('front');
+                    });
+                }
+                
+                if (goToRightBtn) {
+                    goToRightBtn.addEventListener('click', () => {
+                        console.log('goToRight clicked');
+                        this.goToState('right');
+                    });
+                }
+                
+                if (goToResetBtn) {
+                    goToResetBtn.addEventListener('click', () => {
+                        console.log('goToReset clicked');
+                        this.goToState('reset');
+                    });
+                }
+                
+                if (playSequenceBtn) {
+                    playSequenceBtn.addEventListener('click', () => {
+                        console.log('playSequence clicked - calling playFullSequence');
+                        this.playFullSequence();
+                    });
+                } else {
+                    console.error('playSequence button not found!');
+                }
+                
+                console.log('Animation controls setup complete');
+            }
+            
+            async goToState(targetState) {
+                if (this.currentState === targetState) {
+                    this.updateAnimationStatus('Already at target state');
+                    return;
+                }
+                
+                // Get transition path from combination.txt
+                const transition = this.getTransitionPath(this.currentState, targetState);
+                
+                if (transition) {
+                    await this.executeTransition(transition);
+                    this.currentState = targetState;
+                } else {
+                    this.updateAnimationStatus('No transition path available');
+                }
+            }
+            
+            getTransitionPath(fromState, toState) {
+                // Exact transitions from combination.txt
+                const transitions = {
+                    'reset': {
+                        'front': { type: 'direct', sequence: 'restFront', reverse: false },
+                        'top': { type: 'direct', sequence: 'restTop', reverse: false },
+                        'right': { type: 'direct', sequence: 'restRight', reverse: false }
+                    },
+                    'front': {
+                        'reset': { type: 'direct', sequence: 'restFront', reverse: true },
+                        'top': { type: 'direct', sequence: 'topFrontReverse', reverse: false },
+                        'right': { type: 'direct', sequence: 'frontRight', reverse: false }
+                    },
+                    'top': {
+                        'reset': { type: 'direct', sequence: 'restTop', reverse: true },
+                        'front': { type: 'direct', sequence: 'topFront', reverse: false },
+                        'right': { type: 'direct', sequence: 'topRight', reverse: false }
+                    },
+                    'right': {
+                        'reset': { type: 'direct', sequence: 'restRight', reverse: true },
+                        'front': { type: 'direct', sequence: 'frontRight', reverse: true },
+                        'top': { type: 'direct', sequence: 'topRight', reverse: true }
+                    }
+                };
+                
+                return transitions[fromState]?.[toState] || null;
+            }
+            
+            async executeTransition(transition) {
+                if (transition.type === 'direct') {
+                    await this.playDirectSequence(transition.sequence, transition.reverse);
+                }
+            }
+            
+            async playDirectSequence(sequenceName, reverse) {
+                console.log(`=== playDirectSequence called ===`);
+                console.log(`Playing ${sequenceName} ${reverse ? 'in reverse' : 'forward'}`);
+                
+                const sequence = this.sequences[sequenceName];
+                if (!sequence) {
+                    console.error('Unknown sequence:', sequenceName);
+                    console.error('Available sequences:', Object.keys(this.sequences));
+                    return;
+                }
+                
+                console.log('Sequence config:', sequence);
+                console.log('Frame path:', `${sequence.path}${sequence.startFrame || 1}${sequence.suffix}`);
+                
+                this.currentSequence = sequenceName;
+                this.updateAnimationStatus(`Playing ${sequenceName} ${reverse ? 'in reverse' : 'forward'}`);
+                
+                // Hide 3D model during animation
+                if (this.model) {
+                    console.log('Hiding 3D model in playDirectSequence');
+                    this.model.visible = false;
+                }
+                
+                try {
+                    // Load first frame
+                    const startFrame = sequence.startFrame || 1;
+                    let firstFrameNum;
+                    if (sequence.padded === false) {
+                        firstFrameNum = startFrame.toString();
+                    } else {
+                        firstFrameNum = startFrame.toString().padStart(4, '0');
+                    }
+                    const firstFramePath = `${sequence.path}${firstFrameNum}${sequence.suffix}`;
+                    
+                    console.log('Loading first frame from:', firstFramePath);
+                    console.log('Start frame:', startFrame, 'Padded:', firstFrameNum);
+                    
+                    const textureLoader = new THREE.TextureLoader();
+                    const texture = await new Promise((resolve, reject) => {
+                        textureLoader.load(firstFramePath, resolve, undefined, reject);
+                    });
+                    
+                    console.log('Texture loaded successfully:', texture);
+                    
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    
+                    // Update animation plane with proper aspect ratio
+                    const aspectRatio = texture.image.width / texture.image.height;
+                    console.log('Texture aspect ratio:', aspectRatio);
+                    
+                    this.animationMesh.geometry.dispose();
+                    this.animationMesh.geometry = new THREE.PlaneGeometry(2 * aspectRatio, 2);
+                    
+                    this.animationMesh.material.map = texture;
+                    this.animationMesh.material.needsUpdate = true;
+                    this.animationMesh.visible = true;
+                    
+                    console.log('Animation mesh updated and made visible');
+                    
+                    this.totalFrames = sequence.frames;
+                    this.currentFrame = reverse ? this.totalFrames - 1 : 0;
+                    this.isPlaying = true;
+                    this.isReversed = reverse;
+                    
+                    console.log('Animation started:', { totalFrames: this.totalFrames, currentFrame: this.currentFrame, isPlaying: this.isPlaying });
+                    
+                    this.updateAnimationProgress(reverse ? 1 : 0);
+                    
+                    // Wait for animation to complete
+                    await this.waitForAnimationComplete();
+                    
+                    // Show 3D model and hide animation when done
+                    if (this.model) {
+                        console.log('Showing 3D model after animation');
+                        this.model.visible = true;
+                    }
+                    this.animationMesh.visible = false;
+                    
+                } catch (error) {
+                    console.error('Error loading sequence:', error);
+                    this.updateAnimationStatus('Error loading sequence');
+                    
+                    // Show 3D model on error
+                    if (this.model) {
+                        this.model.visible = true;
+                    }
+                    this.animationMesh.visible = false;
+                }
+            }
+            
+            async waitForAnimationComplete() {
+                return new Promise((resolve) => {
+                    const checkComplete = () => {
+                        if (!this.isPlaying) {
+                            resolve();
+                        } else {
+                            setTimeout(checkComplete, 100);
+                        }
+                    };
+                    checkComplete();
+                });
+            }
+            
+            async playFullSequence() {
+                console.log('=== playFullSequence called ===');
+                console.log('Current state:', this.currentState);
+                console.log('Sequences available:', Object.keys(this.sequences));
+                console.log('Play sequence config:', this.sequences.play);
+                
+                console.log('Playing PLAY sequence from dedicated folder');
+                this.updateAnimationStatus('Spiller sekvens...');
+                
+                // Hide 3D model during animation
+                if (this.model) {
+                    console.log('Hiding 3D model');
+                    this.model.visible = false;
+                } else {
+                    console.log('No 3D model to hide');
+                }
+                
+                try {
+                    console.log('Calling playDirectSequence with play sequence');
+                    await this.playDirectSequence('play', false);
+                    this.updateAnimationStatus('Sekvens fullført!');
+                    this.animationMesh.visible = false;
+                    this.currentState = 'reset';
+                    
+                    // Show 3D model when done
+                    if (this.model) {
+                        console.log('Showing 3D model');
+                        this.model.visible = true;
+                    }
+                } catch (error) {
+                    console.error('Error playing PLAY sequence:', error);
+                    this.updateAnimationStatus('Feil ved spilling av sekvens');
+                    
+                    // Show 3D model on error
+                    if (this.model) {
+                        this.model.visible = true;
+                    }
+                    this.animationMesh.visible = false;
+                }
+            }
+            
+            async loadFrame(frameNumber) {
+                if (!this.currentSequence) return;
+                
+                const sequence = this.sequences[this.currentSequence];
+                const startFrame = sequence.startFrame || 1;
+                const actualFrameNumber = startFrame + frameNumber - 1;
+                
+                // Handle padded vs non-padded frame numbers
+                let paddedFrame;
+                if (sequence.padded === false) {
+                    paddedFrame = actualFrameNumber.toString();
+                } else {
+                    // For padded sequences, use 4-digit zero-padding
+                    paddedFrame = actualFrameNumber.toString().padStart(4, '0');
+                }
+                
+                const framePath = `${sequence.path}${paddedFrame}${sequence.suffix}`;
+                
+                console.log(`Loading frame ${frameNumber} from: ${framePath} (actual: ${actualFrameNumber}, padded: ${paddedFrame})`);
+                
+                try {
+                    const textureLoader = new THREE.TextureLoader();
+                    const texture = await new Promise((resolve, reject) => {
+                        textureLoader.load(framePath, resolve, undefined, reject);
+                    });
+                    
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    
+                    if (this.animationTexture) {
+                        this.animationTexture.dispose();
+                    }
+                    
+                    this.animationTexture = texture;
+                    this.animationMesh.material.map = this.animationTexture;
+                    this.animationMesh.material.needsUpdate = true;
+                    
+                } catch (error) {
+                    console.error('Error loading frame:', frameNumber, 'from path:', framePath, error);
+                }
+            }
+            
+            updateAnimationProgress(progress) {
+                const progressBar = document.getElementById('animationProgressBar');
+                if (progressBar) {
+                    progressBar.style.width = `${progress * 100}%`;
+                }
+            }
+            
+            updateAnimationStatus(message) {
+                const statusElement = document.getElementById('animationStatus');
+                if (statusElement) {
+                    statusElement.textContent = message;
+                }
+                console.log('Animation Status:', message);
+            }
+            
+            showLoading(show) {
+                document.getElementById('loading').style.display = show ? 'block' : 'none';
+            }
+            
+            updateStatus(message) {
+                const statusElement = document.getElementById('status');
+                if (statusElement) statusElement.textContent = message;
+            }
+            
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                this.orbitControls.update();
+                
+                // Handle animation frame progression
+                const currentTime = performance.now();
+                const deltaTime = currentTime - this.lastFrameTime;
+                
+                if (this.isPlaying && this.currentSequence && deltaTime >= (1000 / this.frameRate)) {
+                    this.lastFrameTime = currentTime;
+                    
+                    if (this.isReversed) {
+                        this.currentFrame--;
+                        if (this.currentFrame < 0) {
+                            this.currentFrame = 0;
+                            this.isPlaying = false;
+                            this.updateAnimationStatus('Reached first frame');
+                        }
+                    } else {
+                        this.currentFrame++;
+                        if (this.currentFrame >= this.totalFrames) {
+                            this.currentFrame = this.totalFrames - 1;
+                            this.isPlaying = false;
+                            this.updateAnimationStatus('Animation complete');
+                        }
+                    }
+                    
+                    // Ensure frame number is within valid range (1 to totalFrames)
+                    const frameToLoad = Math.max(1, Math.min(this.currentFrame + 1, this.totalFrames));
+                    this.loadFrame(frameToLoad);
+                    this.updateAnimationProgress(this.currentFrame / (this.totalFrames - 1));
+                }
+                
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            centerAndScaleModel() {
+                if (!this.model) return;
+                const box = new THREE.Box3().setFromObject(this.model);
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                if (maxDim > 8) this.model.scale.setScalar(8 / maxDim);
+                this.model.position.set(0, 0, 0);
+                document.getElementById('modelScale').value = 1;
+                document.getElementById('scaleValue').textContent = '1.0';
+                this.orbitControls.target.set(0, 0, 0);
+                this.orbitControls.update();
+            }
+        }
+
+        window.addEventListener('load', () => {
+            new CADViewer();
+        });
+    </script>
+</body>
+</html>

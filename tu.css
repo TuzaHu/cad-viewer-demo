@@ -1,0 +1,214 @@
+/* Replace your current mobile media queries with this improved version */
+
+/* Mobile optimizations - COMPLETELY REVISED */
+@media (max-width: 768px) {
+    #controls {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        max-width: calc(100vw - 20px);
+        box-sizing: border-box;
+    }
+    
+    .button-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+    
+    .button-group button {
+        width: 100%;
+        margin: 0;
+        padding: 12px 16px;
+        font-size: 13px;
+        min-width: auto;
+        border-radius: 20px;
+        text-align: center;
+    }
+    
+    #status {
+        display: block !important; /* Keep status visible */
+        font-size: 12px;
+        padding: 8px 12px;
+        margin: 12px 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    #progress {
+        width: 100%;
+        margin-top: 12px;
+        height: 6px;
+    }
+    
+    /* Play button positioning */
+    #play-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        left: auto;
+        z-index: 101;
+    }
+    
+    #play-button button {
+        padding: 14px 24px;
+        font-size: 14px;
+        min-width: 100px;
+        border-radius: 25px;
+        box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
+    }
+    
+    /* Navigation link positioning */
+    #nav-to-cad {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 101;
+    }
+    
+    #nav-to-cad a {
+        padding: 10px 16px;
+        font-size: 12px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+}
+
+@media (max-width: 480px) {
+    #controls {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        padding: 12px;
+        max-width: calc(100vw - 16px);
+    }
+    
+    .button-group {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+    
+    .button-group button {
+        padding: 11px 14px;
+        font-size: 12px;
+        border-radius: 18px;
+    }
+    
+    #status {
+        font-size: 11px;
+        padding: 7px 10px;
+        margin: 10px 0;
+    }
+    
+    #progress {
+        height: 5px;
+        margin-top: 10px;
+    }
+    
+    #play-button {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    #play-button button {
+        padding: 12px 20px;
+        font-size: 13px;
+        min-width: 90px;
+    }
+    
+    #nav-to-cad {
+        top: 15px;
+        right: 15px;
+    }
+    
+    #nav-to-cad a {
+        padding: 9px 14px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 360px) {
+    .button-group {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+    
+    .button-group button {
+        padding: 10px 12px;
+        font-size: 11px;
+    }
+    
+    #controls {
+        top: 5px;
+        left: 5px;
+        right: 5px;
+        padding: 10px;
+        max-width: calc(100vw - 10px);
+    }
+    
+    #play-button {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    #play-button button {
+        padding: 10px 16px;
+        font-size: 12px;
+        min-width: 80px;
+    }
+    
+    #nav-to-cad {
+        top: 10px;
+        right: 10px;
+    }
+    
+    #nav-to-cad a {
+        padding: 8px 12px;
+        font-size: 10px;
+    }
+}
+
+/* Additional modern improvements */
+.button-group button {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Specific button colors for better visual hierarchy */
+#goToTop {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#goToFront {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+}
+
+#goToRight {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+#goToReset {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #333 !important;
+}
+
+/* Hover effects for all buttons */
+.button-group button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Active state feedback */
+.button-group button:active {
+    transform: translateY(0) scale(0.98);
+}
