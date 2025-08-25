@@ -36,7 +36,7 @@ class AnimationPlayer {
             },
             'topFront': {
                 path: 'Renders/top_front/',
-                frames: 73,
+                frames: 97,
                 startFrame: 1,
                 padded: false,
                 suffix: '.png'
