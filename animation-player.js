@@ -558,9 +558,18 @@ class EnhancedAnimationPlayer {
             console.log('Starting dynamic sequence scanning...');
             await this.scanRendersFolder();
             console.log('Dynamic scanning completed. Found sequences:', Object.keys(this.sequences));
+            
+            // If no sequences were found (GitHub Pages CORS issue), use fallback
+            if (Object.keys(this.sequences).length === 0) {
+                console.log('No sequences found via dynamic scanning, using fallback sequences for GitHub Pages');
+                this.sequences = this.getFallbackSequences();
+                console.log('Using fallback sequences:', Object.keys(this.sequences));
+            }
         } catch (error) {
             console.error('Error during dynamic scanning:', error);
-            this.showNotification('Feil under sekvens-scanning', 'error');
+            console.log('Using fallback sequences due to error');
+            this.sequences = this.getFallbackSequences();
+            this.showNotification('Using fallback sequences', 'warning');
         }
     }
     
@@ -676,6 +685,92 @@ class EnhancedAnimationPlayer {
         }
         
         return frameCount;
+    }
+    
+    // Fallback sequences for GitHub Pages when dynamic scanning fails
+    getFallbackSequences() {
+        return {
+            'Rest_Top': { 
+                path: './Renders/Rest_Top/', 
+                frames: 72, 
+                startFrame: 1, 
+                padded: true, 
+                padLength: 4, 
+                suffix: '.png' 
+            },
+            'Rest_Right': { 
+                path: './Renders/Rest_Right/', 
+                frames: 72, 
+                startFrame: 1, 
+                padded: true, 
+                padLength: 4, 
+                suffix: '.png' 
+            },
+            'Rest_front': { 
+                path: './Renders/Rest_front/', 
+                frames: 73, 
+                startFrame: 1, 
+                padded: true, 
+                padLength: 4, 
+                suffix: '.png' 
+            },
+            'top_front': { 
+                path: './Renders/top_front/', 
+                frames: 97, 
+                startFrame: 1, 
+                padded: false, 
+                padLength: 0, 
+                suffix: '.png' 
+            },
+            'top_front_reverse': { 
+                path: './Renders/top_front_reverse/', 
+                frames: 73, 
+                startFrame: 1, 
+                padded: true, 
+                padLength: 4, 
+                suffix: '.png' 
+            },
+            'Rest_top_front': { 
+                path: './Renders/Rest_top_front/', 
+                frames: 144, 
+                startFrame: 1, 
+                padded: true, 
+                padLength: 4, 
+                suffix: '.png' 
+            },
+            'front_right': { 
+                path: './Renders/front_right/', 
+                frames: 73, 
+                startFrame: 1, 
+                padded: false, 
+                padLength: 0, 
+                suffix: '.png' 
+            },
+            'top_right': { 
+                path: './Renders/top_right/', 
+                frames: 72, 
+                startFrame: 1, 
+                padded: false, 
+                padLength: 0, 
+                suffix: '.png' 
+            },
+            'Play': { 
+                path: './Renders/Play/', 
+                frames: 232, 
+                startFrame: 1, 
+                padded: true, 
+                padLength: 4, 
+                suffix: '.png' 
+            },
+            'Rest_Right_reverse': { 
+                path: './Renders/Rest_Right_reverse/', 
+                frames: 72, 
+                startFrame: 1, 
+                padded: true, 
+                padLength: 4, 
+                suffix: '.png' 
+            }
+        };
     }
 }
 
