@@ -10,7 +10,7 @@ top,front,right,reset
 
 Action you should carry out the path below...
 
-Play: look at a new folder called Play
+Play: look at a new folder called Play  + Rest_Right_reverse
 
 front to right:  front_right
 right to front: reverse front_right

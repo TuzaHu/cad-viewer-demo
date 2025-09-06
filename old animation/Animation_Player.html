@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Animation Scanner</title>
+    <link rel="stylesheet" href="Animation_Player.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dynamic Animation Scanner</h1>
+            <p class="subtitle">Automatically detects animation sequences from folder structure</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading animation player...</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-panel">
+                    <h2>Animation Controls</h2>
+                    <div class="btn-group">
+                        <button id="goToTop">Top View</button>
+                        <button id="goToFront">Front View</button>
+                        <button id="goToRight">Right View</button>
+                        <button class="reset-btn" id="goToReset">Reset</button>
+                        <button class="play-btn" id="playSequence">Play All</button>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div id="progress-bar"></div>
+                        </div>
+                        <div class="info-panel">
+                            <span id="frame-info">Frame: 0/0</span>
+                            <span id="fps-counter">0 FPS</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-container">
+                        <strong>Status:</strong> <span id="status">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification">Test notification</div>
+    
+    <script src="Animation_Player.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Backup directories
+backup_*/
+
+# Blender files
+*.blend
+*.blend1
+
+# FreeCAD files
+*.FCStd
+*.FCBak
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Node modules (if using npm)
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log

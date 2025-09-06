@@ -17,73 +17,14 @@ class AnimationPlayer {
         this.frameRate = 12; // FPS
         this.lastFrameTime = 0;
         
-        // Available animation sequences
-        this.sequences = {
-            'restTop': {
-                path: 'Renders/Rest_Top/',
-                frames: 72,
-                suffix: '.png'
-            },
-            'restRight': {
-                path: 'Renders/Rest_Right/',
-                frames: 72,
-                suffix: '.png'
-            },
-            'restFront': {
-                path: 'Renders/Rest_front/',
-                frames: 73,
-                suffix: '.png'
-            },
-            'topFront': {
-                path: 'Renders/top_front/',
-                frames: 97,
-                startFrame: 1,
-                padded: false,
-                suffix: '.png'
-            },
-            'topFrontReverse': {
-                path: 'Renders/top_front_reverse/',
-                frames: 73,
-                suffix: '.png'
-            },
-            'restTopFront': {
-                path: 'Renders/Rest_top_front/',
-                frames: 144,
-                suffix: '.png'
-            },
-            'frontRight': {
-                path: 'Renders/front_right/',
-                frames: 73,
-                startFrame: 1,
-                padded: false,
-                suffix: '.png'
-            },
-            'topRight': {
-                path: 'Renders/top_right/',
-                frames: 72,
-                startFrame: 1,
-                padded: false,
-                suffix: '.png'
-            },
-            'play': {
-                path: 'Renders/Play/',
-                frames: 232,
-                startFrame: 1,
-                padded: true,
-                suffix: '.png'
-            },
-            'restRightReverse': {
-                path: 'Renders/Rest_Right_reverse/',
-                frames: 72,
-                suffix: '.png'
-            }
-        };
+        // Will be populated by dynamic scanning
+        this.sequences = {};
         
         this.init();
         this.setupEventListeners();
     }
     
-    init() {
+    async init() {
         console.log('Initializing Three.js scene...');
         
         // Create scene
@@ -108,6 +49,9 @@ class AnimationPlayer {
         
         // Load background image
         this.loadBackground();
+        
+        // Scan for animation sequences dynamically
+        await this.scanForSequences();
         
         // Start render loop
         this.animate();
@@ -222,31 +166,36 @@ class AnimationPlayer {
     }
     
     getTransitionPath(fromState, toState) {
-        // Exact transitions from combination.txt
+        // Map the detected sequences to the original transition logic
         const transitions = {
             'reset': {
-                'front': { type: 'direct', sequence: 'restFront', reverse: false }, // Reset to front: reset_front
-                'top': { type: 'direct', sequence: 'restTop', reverse: false }, // Reset to top: Rest_Top
-                'right': { type: 'direct', sequence: 'restRight', reverse: false } // Reset to right: Reset_right
+                'front': { type: 'direct', sequence: 'Rest_front', reverse: false },
+                'top': { type: 'direct', sequence: 'Rest_Top', reverse: false },
+                'right': { type: 'direct', sequence: 'Rest_Right', reverse: false }
             },
             'front': {
-                'reset': { type: 'direct', sequence: 'restFront', reverse: true }, // front to Reset: rewind the reset_front
-                'top': { type: 'direct', sequence: 'topFrontReverse', reverse: false }, // Front to top: reverse top_front (use reverse sequence)
-                'right': { type: 'direct', sequence: 'frontRight', reverse: false } // front to right: front_right
+                'reset': { type: 'direct', sequence: 'Rest_front', reverse: true },
+                'top': { type: 'direct', sequence: 'top_front_reverse', reverse: false },
+                'right': { type: 'direct', sequence: 'front_right', reverse: false }
             },
             'top': {
-                'reset': { type: 'direct', sequence: 'restTop', reverse: true }, // top to reset: rewind Rest_top
-                'front': { type: 'direct', sequence: 'topFront', reverse: false }, // Top to front: top_front
-                'right': { type: 'direct', sequence: 'topRight', reverse: false } // top to right: top_right
+                'reset': { type: 'direct', sequence: 'Rest_Top', reverse: true },
+                'front': { type: 'direct', sequence: 'top_front', reverse: false },
+                'right': { type: 'direct', sequence: 'top_right', reverse: false }
             },
             'right': {
-                'reset': { type: 'direct', sequence: 'restRight', reverse: true }, // Right to reset: rewind Reset_right
-                'front': { type: 'direct', sequence: 'frontRight', reverse: true }, // right to front: reverse front_right
-                'top': { type: 'direct', sequence: 'topRight', reverse: true } // right to top: rewind top_right
+                'reset': { type: 'direct', sequence: 'Rest_Right', reverse: true },
+                'front': { type: 'direct', sequence: 'front_right', reverse: true },
+                'top': { type: 'direct', sequence: 'top_right', reverse: true }
             }
         };
         
-        return transitions[fromState]?.[toState] || null;
+        const transition = transitions[fromState]?.[toState] || null;
+        if (transition && !this.sequences[transition.sequence]) {
+            console.error(`Sequence ${transition.sequence} not found in available sequences:`, Object.keys(this.sequences));
+            return null;
+        }
+        return transition;
     }
     
     async executeTransition(transition) {
@@ -349,24 +298,24 @@ class AnimationPlayer {
     
     async playFullSequence() {
         console.log('Playing PLAY + Rest_Right_reverse sequence');
-        this.updateStatus('Spiller PLAY + Rest_Right_reverse sekvens...');
+        this.updateStatus('Playing PLAY + Rest_Right_reverse sequence...');
         
         try {
             // First play the Play sequence
-            console.log('Playing Play sequence (232 frames)');
-            await this.playDirectSequence('play', false);
+            console.log('Playing Play sequence');
+            await this.playDirectSequence('Play', false);
             
             // Then play the Rest_Right_reverse sequence
-            console.log('Playing Rest_Right_reverse sequence (72 frames)');
-            await this.playDirectSequence('restRightReverse', false);
+            console.log('Playing Rest_Right_reverse sequence');
+            await this.playDirectSequence('Rest_Right_reverse', false);
             
-            this.updateStatus('PLAY + Rest_Right_reverse sekvens fullført!');
+            this.updateStatus('PLAY + Rest_Right_reverse sequence completed!');
             this.animationMesh.visible = false;
             this.currentState = 'reset';
             
         } catch (error) {
             console.error('Error playing complete sequence:', error);
-            this.updateStatus('Feil ved spilling av komplett sekvens');
+            this.updateStatus('Error playing complete sequence');
         }
     }
     
@@ -491,5 +440,155 @@ class AnimationPlayer {
         document.getElementById('playSequence').addEventListener('click', () => {
             this.playFullSequence();
         });
+    }
+    
+    // Dynamic sequence scanning functions
+    async scanForSequences() {
+        console.log('Scanning for animation sequences...');
+        
+        try {
+            const detectedSequences = await this.scanRendersFolder();
+            console.log('Detected sequences:', detectedSequences);
+            
+            if (Object.keys(detectedSequences).length > 0) {
+                console.log('Using detected sequences');
+                this.sequences = detectedSequences;
+                this.updateStatus('Sequences loaded');
+            } else {
+                console.log('No sequences detected');
+                this.updateStatus('No sequences found');
+            }
+        } catch (error) {
+            console.warn('Sequence scanning failed:', error);
+            this.updateStatus('Error loading sequences');
+        }
+    }
+    
+    async scanRendersFolder() {
+        console.log('Starting real folder scan...');
+        
+        // Get list of folders in Renders directory
+        const folders = await this.getFoldersInRenders();
+        const sequences = {};
+        
+        for (const folder of folders) {
+            try {
+                const sequenceInfo = await this.analyzeSequenceFolder(folder);
+                if (sequenceInfo) {
+                    sequences[folder] = sequenceInfo;
+                    console.log(`Analyzed ${folder}: ${sequenceInfo.frames} frames, start: ${sequenceInfo.startFrame}, padded: ${sequenceInfo.padded}`);
+                }
+            } catch (error) {
+                console.warn(`Failed to analyze folder ${folder}:`, error);
+            }
+        }
+        
+        console.log(`Found ${Object.keys(sequences).length} sequences from Renders/ folder`);
+        console.log('Sequences:', Object.keys(sequences));
+        
+        return sequences;
+    }
+    
+    async getFoldersInRenders() {
+        // Since we can't directly list directories from browser, we'll try to detect folders
+        // by testing common folder names that might exist
+        const possibleFolders = [
+            'Rest_Top', 'Rest_Right', 'Rest_front', 'Rest_front_reverse', 'Rest_Right_reverse', 'Rest_Top_reverse',
+            'top_front', 'top_front_reverse', 'top_right', 'front_right', 'Play', 'New_Play',
+            'Rest_top_front', 'Rest_top_front_reverse', 'newcon', 'newcon_renamed', 'new Rest front'
+        ];
+        
+        const existingFolders = [];
+        
+        for (const folder of possibleFolders) {
+            const testPath = `Renders/${folder}/`;
+            if (await this.folderExists(testPath)) {
+                existingFolders.push(folder);
+            }
+        }
+        
+        return existingFolders;
+    }
+    
+    async folderExists(folderPath) {
+        // Test if folder exists by trying to load a test image
+        const testPaths = [
+            `${folderPath}0001.png`,
+            `${folderPath}0000.png`,
+            `${folderPath}1.png`,
+            `${folderPath}10.png`
+        ];
+        
+        for (const testPath of testPaths) {
+            try {
+                const response = await fetch(testPath, { method: 'HEAD' });
+                if (response.ok) {
+                    return true;
+                }
+            } catch (error) {
+                // Continue to next test path
+            }
+        }
+        
+        return false;
+    }
+    
+    async analyzeSequenceFolder(folderName) {
+        const folderPath = `Renders/${folderName}/`;
+        
+        // Try different patterns to find the actual files
+        const patterns = [
+            { startFrame: 0, padded: true, padLength: 4 },   // 0000.png, 0001.png, ...
+            { startFrame: 1, padded: true, padLength: 4 },   // 0001.png, 0002.png, ...
+            { startFrame: 1, padded: false, padLength: 0 },  // 1.png, 2.png, ...
+            { startFrame: 10, padded: false, padLength: 0 }  // 10.png, 11.png, ...
+        ];
+        
+        for (const pattern of patterns) {
+            const sequenceInfo = await this.testPattern(folderPath, pattern);
+            if (sequenceInfo) {
+                return {
+                    path: folderPath,
+                    frames: sequenceInfo.frames,
+                    startFrame: pattern.startFrame,
+                    padded: pattern.padded,
+                    padLength: pattern.padLength,
+                    suffix: '.png'
+                };
+            }
+        }
+        
+        return null;
+    }
+    
+    async testPattern(folderPath, pattern) {
+        let frameCount = 0;
+        let currentFrame = pattern.startFrame;
+        
+        // Test up to 500 frames to find the sequence length
+        while (frameCount < 500) {
+            const frameNumber = currentFrame + frameCount;
+            const paddedFrame = pattern.padded ? 
+                frameNumber.toString().padStart(pattern.padLength, '0') : 
+                frameNumber.toString();
+            const framePath = `${folderPath}${paddedFrame}.png`;
+            
+            try {
+                const response = await fetch(framePath, { method: 'HEAD' });
+                if (!response.ok) {
+                    break; // Frame doesn't exist, we've found the end
+                }
+                frameCount++;
+            } catch (error) {
+                break; // Error loading frame, we've found the end
+            }
+        }
+        
+        // Only return if we found at least 10 frames (reasonable minimum)
+        if (frameCount >= 10) {
+            return { frames: frameCount };
+        }
+        
+        return null;
     }
 } 

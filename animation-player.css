@@ -1,0 +1,329 @@
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #00c853 0%, #64dd17 100%);
+    --warning-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    --reset-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    --dark-bg: rgba(0, 0, 0, 0.85);
+    --light-text: #ffffff;
+    --accent-color: #667eea;
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    color: var(--light-text);
+}
+
+#container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    background: var(--dark-bg);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 320px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+button {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#goToTop {
+    background: var(--primary-gradient);
+}
+
+#goToFront {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+}
+
+#goToRight {
+    background: var(--warning-gradient);
+}
+
+#goToReset {
+    background: var(--reset-gradient);
+    color: #2c3e50 !important;
+}
+
+#status-container {
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#status {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent-color);
+    text-align: center;
+    text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#progress {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    height: 100%;
+    background: var(--primary-gradient);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+#play-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 101;
+}
+
+#play-button button {
+    background: var(--success-gradient);
+    font-size: 16px;
+    padding: 14px 24px;
+    border-radius: 50px;
+    box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
+}
+
+#nav-to-cad {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 101;
+}
+
+#nav-to-cad a {
+    background: var(--primary-gradient);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: inline-block;
+}
+
+#nav-to-cad a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    #controls {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        padding: 15px;
+    }
+    
+    .button-group {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    button {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    #play-button {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    #play-button button {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    #nav-to-cad {
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    #nav-to-cad a {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    #controls {
+        padding: 12px;
+    }
+    
+    .button-group {
+        grid-template-columns: 1fr;
+    }
+    
+    button {
+        padding: 12px;
+    }
+    
+    #status {
+        font-size: 13px;
+    }
+}
+
+/* Notification system */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--dark-bg);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(10px);
+    border-left: 4px solid var(--accent-color);
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+/* Performance warning */
+.performance-warning {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    backdrop-filter: blur(5px);
+    display: none;
+}

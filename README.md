@@ -1,107 +1,81 @@
-# 🎯 Professional 3D CAD Viewer & Animation Player Demo
+# CAD Viewer Demo
 
-A complete, professional-grade 3D CAD viewer and animation player built with Three.js, featuring industry-standard controls and seamless navigation between different viewing modes.
+A sophisticated 3D CAD viewer with smooth animation transitions built with Three.js.
 
-## ✨ Features
+## 🚀 Quick Start
 
-### 🎮 **3D CAD Viewer**
-- **Professional 3D Gizmo**: Rotate, move, and scale models with intuitive controls
-- **Standard CAD Views**: Front, Top, Right, Left, Back, Bottom orthographic views
-- **Multiple Format Support**: GLTF, OBJ, STL, DAE files
-- **Advanced Lighting**: Professional lighting with shadows and ambient effects
-- **Coordinate System Fixes**: Automatic axis orientation correction
+1. **Run the development server:**
+   ```bash
+   python3 scripts/server.py
+   ```
 
-### 🎬 **Animation Player**
-- **State Machine**: Complex animation sequences with smooth transitions
-- **Frame-by-Frame Control**: Precise animation playback at 12 FPS
-- **Multiple Sequences**: Support for complex multi-step animations
-- **Professional UI**: Modern, responsive interface with progress tracking
+2. **Open in browser:**
+   ```
+   http://localhost:8001
+   ```
 
-## 🚀 **Live Demo**
+3. **Mobile access:**
+   Scan the QR code in `assets/` folder
 
-- **CAD Viewer**: [https://tuzaHu.github.io/cad-viewer-demo/](https://tuzaHu.github.io/cad-viewer-demo/)
-- **Animation Player**: [https://tuzaHu.github.io/cad-viewer-demo/animation-player.html](https://tuzaHu.github.io/cad-viewer-demo/animation-player.html)
-
-## 🎛️ **Controls**
-
-### **CAD Viewer Controls:**
-- **🔄 Rotate Mode**: Drag colored rings to rotate model
-- **↔️ Move Mode**: Drag colored arrows to move model
-- **📏 Scale Mode**: Drag colored cubes to scale model
-- **🎯 View Buttons**: Front, Top, Right, Left, Back, Bottom views
-- **Mouse**: Orbit camera around the model
-- **Scroll**: Zoom in/out
-
-### **Animation Player Controls:**
-- **State Buttons**: Top, Front, Right, Rest
-- **Play Button**: Full sequence playback
-- **Progress Bar**: Real-time animation progress
-- **Status Display**: Current operation feedback
-
-## 🛠️ **Technology Stack**
-
-- **Three.js**: 3D graphics and rendering
-- **WebGL**: Hardware-accelerated graphics
-- **Transform Controls**: Professional 3D gizmo system
-- **Orbit Controls**: Camera navigation
-- **Modern CSS**: Responsive design with animations
-
-## 📁 **File Structure**
+## 📁 Project Structure
 
 ```
-cad-viewer-demo/
-├── index.html              ← CAD Viewer (main page)
-├── animation-player.html   ← Animation Player
-├── app.js                  ← Animation Player logic
-├── README.md               ← This file
-├── Renders/                ← Animation sequences
-│   ├── Background.png
-│   ├── rest_top/
-│   ├── rest_right/
-│   ├── top_front/
-│   └── ... (all sequences)
-└── models/                 ← 3D models
-    └── pipe_Demo.obj
+├── app.js                 # Main application (Three.js animation player)
+├── index.html            # Main web interface
+├── cad-viewer.html       # Alternative CAD viewer interface
+├── cadViewerScene.js     # CAD viewer scene management
+├── sceneManager.js       # Scene management utilities
+├── re.js                 # Additional app functionality
+├── tu.css                # App styling
+├── scripts/              # Development tools
+│   ├── server.py         # Local development server
+│   └── generate_qr.py    # QR code generator
+├── blender/              # Blender workflow scripts
+│   ├── set_cam_manual_dimensions_fixed.py    # Camera setup
+│   ├── simple_png_import_fixed.py            # PNG import
+│   ├── svg_to_png_manual_dimensions_fixed.py # SVG conversion
+│   └── make_emission_material.py             # Material setup
+├── docs/                 # Documentation
+├── assets/               # Static assets (QR codes, etc.)
+├── Renders/              # Animation sequences
+├── images/               # Image assets
+└── models/               # 3D models
 ```
 
-## 🎯 **Use Cases**
+## 🎮 Controls
 
-- **CAD/CAM Applications**: Professional 3D model viewing
-- **Technical Presentations**: Animation sequence demonstrations
-- **Educational Content**: Interactive 3D learning materials
-- **Product Showcases**: Professional product demonstrations
-- **Engineering Reviews**: Technical drawing presentations
+- **Top/Front/Right/Reset buttons:** Navigate between different views
+- **Play Sequence:** Play the complete animation sequence
+- **Progress bar:** Shows animation progress
 
-## 🌟 **Professional Features**
+## 🔧 Development
 
-- **Industry Standard Controls**: Just like Blender, FreeCAD, SolidWorks
-- **Responsive Design**: Works on all devices and screen sizes
-- **Performance Optimized**: Smooth 60fps rendering
-- **Cross-Platform**: Works in all modern browsers
-- **No Installation**: Pure web-based solution
+### Web App
+- **Local server:** `python3 scripts/server.py`
+- **Generate QR:** `python3 scripts/generate_qr.py`
+- **Cleanup:** `python3 cleanup_app.py`
 
-## 🚀 **Getting Started**
+### Blender Workflow
+1. **Convert SVG to PNG:** `python3 blender/svg_to_png_manual_dimensions_fixed.py`
+2. **Import PNG to Blender:** `python3 blender/simple_png_import_fixed.py`
+3. **Set up camera:** `python3 blender/set_cam_manual_dimensions_fixed.py`
+4. **Create emission material:** `python3 blender/make_emission_material.py`
 
-1. **Clone the repository**
-2. **Open `index.html`** for CAD viewer
-3. **Open `animation-player.html`** for animations
-4. **Upload your own models** using the file upload feature
+## 📱 Mobile Access
 
-## 📱 **Browser Support**
+QR codes are available in the `assets/` folder for easy mobile access.
 
-- ✅ Chrome/Edge (recommended)
-- ✅ Firefox
-- ✅ Safari
-- ✅ Mobile browsers
+## 🎨 Animation Sequences
 
-## 🤝 **Contributing**
+The app includes multiple animation sequences:
+- Rest positions (Top, Front, Right)
+- Transition animations
+- Play sequence
+- Reverse sequences for smooth transitions
 
-This is a demo project showcasing professional 3D web applications. Feel free to fork and modify for your own projects!
+## 📄 Configuration Files
 
-## 📄 **License**
-
-Open source - use freely for personal and commercial projects.
-
----
-
-**Built with ❤️ using Three.js and modern web technologies**
+- `dimensions.txt` - Project dimensions
+- `combination.txt` - Animation transition paths
+- `positioning.txt` - Camera positioning data
+- `view_export.json` - Export configuration

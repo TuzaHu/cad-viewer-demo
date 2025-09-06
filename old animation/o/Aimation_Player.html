@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced Animation Player</title>
-    <link rel="stylesheet" href="animation-player.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="container">
@@ -50,19 +50,6 @@
     <div class="notification" id="notification"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="animation-player.js"></script>
-    
-    <script>
-        // Initialize the enhanced animation player
-        window.addEventListener('load', () => {
-            console.log('Loading Enhanced Animation Player...');
-            try {
-                new EnhancedAnimationPlayer();
-            } catch (error) {
-                console.error('Error initializing Enhanced Animation Player:', error);
-            }
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
-
