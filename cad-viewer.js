@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Try to load the OBJ model
         const objLoader = new THREE.OBJLoader();
         objLoader.load(
-            '/models/pipe_Demo.obj',
+            './models/pipe_Demo.obj',
             function(object) {
                 // Apply a material to all meshes in the object
                 object.traverse(function(child) {

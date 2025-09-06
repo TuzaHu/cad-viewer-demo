@@ -94,7 +94,7 @@ class EnhancedAnimationPlayer {
     async loadBackground() {
         return new Promise((resolve) => {
             const textureLoader = new THREE.TextureLoader();
-            textureLoader.load('/Renders/Background.png', (texture) => {
+            textureLoader.load('./Renders/Background.png', (texture) => {
                 this.backgroundTexture = texture;
                 this.backgroundTexture.minFilter = THREE.LinearFilter;
                 this.backgroundTexture.magFilter = THREE.LinearFilter;
@@ -595,7 +595,7 @@ class EnhancedAnimationPlayer {
         const existingFolders = [];
         
         for (const folderName of possibleFolders) {
-            const folderPath = `/Renders/${folderName}/`;
+            const folderPath = `./Renders/${folderName}/`;
             if (await this.folderExists(folderPath)) {
                 existingFolders.push(folderName);
             }
